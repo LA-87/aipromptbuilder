@@ -1,0 +1,37 @@
+{
+    "name": "la-87/aipromptbuilder",
+    "description": "AIPromptBuilder",
+    "require": {
+        "openai-php/client": "dev-main",
+        "symfony/http-client": "^7.0",
+        "nyholm/psr7": "^1.8",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "autoload": {
+        "files": ["src/helpers.php"],
+        "psr-4": {
+            "LA87\\AIPromptBuilder\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LA87\\AIPromptBuilder\\AIPromptBuilderServiceProvider"
+            ]
+        }
+    },
+
+    "authors": [
+        {
+            "name": "Lauris Abrickis",
+            "email": "lauris.abrickis@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
+    }
+}
