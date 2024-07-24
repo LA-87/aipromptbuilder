@@ -4,11 +4,18 @@ namespace LA87\AIPromptBuilder;
 
 use Illuminate\Support\ServiceProvider;
 use LA87\AIPromptBuilder\Services\StringUtilsService;
+use OpenAI;
+use OpenAI\Client;
 
 class AIPromptBuilderServiceProvider extends ServiceProvider {
     public function register() {
+
         $this->app->singleton('stringutils', function ($app) {
             return new StringUtilsService();
+        });
+
+        $this->app->singleton(Client::class, function (): Client {
+            return OpenAI::client(config('ai-prompt-builder.api_key') ?? '');
         });
 
 //        $this->app->singleton(OpenAI\Client::class, function (): OpenAI\Client {
@@ -28,6 +35,11 @@ class AIPromptBuilderServiceProvider extends ServiceProvider {
     }
 
     public function boot() {
-        // Load routes, views, etc.
+        $this->publishes([
+            __DIR__.'/config/config.php' => config_path('ai-prompt-builder.php'),
+        ]);
+        $this->mergeConfigFrom(
+            __DIR__.'/config/config.php', 'ai-prompt-builder'
+        );
     }
 }

@@ -2,23 +2,22 @@
 
 namespace LA87\AIPromptBuilder\Services;
 
-use App\Domain\AI\Contracts\AIFunctionInterface;
-use App\Domain\AI\DTOs\ChatResponseDTO;
-use App\Domain\AI\Enums\AIModelEnum;
-use App\Domain\AI\Exceptions\MissingFunctionCallException;
-use App\Domain\AI\Exceptions\MissingFunctionResultException;
-use App\Enums\ActivityTypeEnum;
+use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
+use LA87\AIPromptBuilder\DTOs\ChatResponseDTO;
+use LA87\AIPromptBuilder\Enums\AIModelEnum;
+use LA87\AIPromptBuilder\Exceptions\MissingFunctionCallException;
+use LA87\AIPromptBuilder\Exceptions\MissingFunctionResultException;
 use OpenAI\Client;
 use OpenAI\Exceptions\TransporterException;
 
 class AIPromptBuilderService
 {
-    protected string $prompt;
-    protected AIModelEnum $model = AIModelEnum::GPT35_TURBO_0613;
+    protected AIModelEnum $model = AIModelEnum::GPT4_O;
+    protected string $prompt = '';
+    protected string $role = '';
     protected array $functions = [];
     protected array $meta = [];
     protected array $history = [];
-    protected string $role;
     protected float $temperature = 0.8;
     protected int|null $maxTokens = null;
     protected int|null $cacheTTL = null;
@@ -27,10 +26,9 @@ class AIPromptBuilderService
 
     public function __construct(
         protected Client $client,
-
     )
     {
-        $this->cacheTTL = config('aibuilder.cache_ttl');
+        $this->cacheTTL = config('ai-prompt-builder.cache_ttl');
     }
 
     public function buildPrompt(): string
@@ -48,7 +46,7 @@ class AIPromptBuilderService
         return normalizeWhitespace($prompt);
     }
 
-    public function buildRole()
+    public function buildRole(): array|string|null
     {
         $role = $this->role;
 
@@ -75,7 +73,7 @@ class AIPromptBuilderService
         return $this;
     }
 
-    public function setAvailableFunctions(array $functions): self
+    public function setFunctionCalls(array $functions): self
     {
         $this->functions = array_merge($this->functions, $functions);
         return $this;
@@ -132,11 +130,16 @@ class AIPromptBuilderService
 
         foreach ($this->functions as $function) {
             $functions[] = [
-                'name' => $function->getName(),
-                'description' => $function->getDescription(),
-                'parameters' => $function->getParametersSchema(),
+                'type' => 'function',
+                'function' => [
+                    'name' => $function->getName(),
+                    'description' => $function->getDescription(),
+                    'parameters' => $function->getParametersSchema(),
+                ]
             ];
         }
+
+        dd($functions);
 
         return $functions;
     }
@@ -199,7 +202,6 @@ class AIPromptBuilderService
                  sleep(2);
 
                 if ($retryCount <= 0) {
-                    activity(ActivityTypeEnum::GPT->value)->log('AI chat error: '.$e->getMessage() . ' !!retrying!!');
                     throw $e;
                 }
             }
@@ -230,6 +232,9 @@ class AIPromptBuilderService
         return $this;
     }
 
+    /**
+     * @throws MissingFunctionResultException
+     */
     public function getFunctionResult(string $functionName)
     {
         $functionResults = collect($this->functionResults);
@@ -241,10 +246,17 @@ class AIPromptBuilderService
         return $functionResults->get($functionName);
     }
 
+    public function listModels(): array
+    {
+        $response = $this->client->models()->list();
+
+        return collect($response->data)->pluck('id')->toArray();
+    }
+
     /**
      * @throws \Exception
      */
-    private function validateState()
+    private function validateState(): void
     {
         if(!$this->cacheTTL) {
             throw new \Exception('Cache TTL missing');
@@ -256,15 +268,20 @@ class AIPromptBuilderService
         dd($this->getData());
     }
 
-    private function getData()
+    private function getData(): array
     {
-        return [
+        $data = [
             'model' => $this->model,
             'messages' => $this->getMessages(),
-            'functions' => $this->getFunctions(),
-            'function_call' => $this->getFunctionCall(),
-            'temperature' => $this->temperature,
-            'max_tokens' => $this->maxTokens,
+//            'functions' => $this->getFunctions(),
+//            'function_call' => $this->getFunctionCall(),
+//            'temperature' => $this->temperature,
+//            'max_tokens' => $this->maxTokens,
         ];
+
+        if(count($this->functions)) {
+            $data['tools'] = $this->getFunctions();
+        }
     }
+
 }

@@ -4,7 +4,6 @@ namespace LA87\AIPromptBuilder\DTOs;
 
 
 use OpenAI\Responses\Chat\CreateResponse;
-use OpenAI\Responses\Chat\CreateStreamedResponse;
 use OpenAI\Responses\Chat\CreateResponseFunctionCall;
 
 class ChatResponseDTO
@@ -54,20 +53,20 @@ class ChatResponseDTO
         );
     }
 
-    public static function fromSream(CreateStreamedResponse $response):static
-    {
-        return new static(
-            id: $response->id,
-            object: $response->object,
-            created: $response->created,
-            choices: $response->choices,
-            completion: $response->choices[0]->delta?->content ?? '',
-            functionCall: $response->choices[0]->message->functionCall,
-            finishReason: $response->choices[0]->finishReason,
-            promptTokens: null,
-            completionTokens: null,
-        );
-    }
+//    public static function fromSream(CreateStreamedResponse $response):static
+//    {
+//        return new static(
+//            id: $response->id,
+//            object: $response->object,
+//            created: $response->created,
+//            choices: $response->choices,
+//            completion: $response->choices[0]->delta?->content ?? '',
+//            functionCall: $response->choices[0]->message->functionCall,
+//            finishReason: $response->choices[0]->finishReason,
+//            promptTokens: null,
+//            completionTokens: null,
+//        );
+//    }
 
     public function appendToCompletion($content)
     {
