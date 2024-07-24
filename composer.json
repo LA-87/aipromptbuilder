@@ -29,6 +29,7 @@
             "email": "lauris.abrickis@gmail.com"
         }
     ],
+    "license": "MIT",
     "minimum-stability": "beta",
     "prefer-stable": true,
     "config": {
