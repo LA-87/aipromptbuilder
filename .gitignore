@@ -1,1 +1,4 @@
 /vendor
+.env.testing
+.env.local
+.env
