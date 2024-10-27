@@ -7,12 +7,15 @@
         "symfony/http-client": "^7.0",
         "nyholm/psr7": "^1.8",
         "guzzlehttp/guzzle": "^7.8",
-        "openai-php/client": "^0.9.0"
+        "openai-php/client": "^0.10.0"
     },
     "autoload": {
-        "files": ["src/helpers.php"],
+        "files": [
+            "src/helpers.php"
+        ],
         "psr-4": {
-            "LA87\\AIPromptBuilder\\": "src/"
+            "LA87\\AIPromptBuilder\\": "src/",
+            "LA87\\AIPromptBuilder\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -22,7 +25,6 @@
             ]
         }
     },
-
     "authors": [
         {
             "name": "Lauris Abrickis",
@@ -34,7 +36,40 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "pestphp/pest-plugin": true
         }
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.5",
+        "orchestra/testbench": "^9.5",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "@php vendor/bin/phpstan analyse --verbose --ansi"
+        ],
+        "test": [
+            "@php vendor/bin/pest"
+        ]
     }
 }

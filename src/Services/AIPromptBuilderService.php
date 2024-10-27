@@ -2,286 +2,132 @@
 
 namespace LA87\AIPromptBuilder\Services;
 
+use Illuminate\Pipeline\Pipeline;
 use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
-use LA87\AIPromptBuilder\DTOs\ChatResponseDTO;
+use LA87\AIPromptBuilder\DTOs\ChatParametersDTO;
+use LA87\AIPromptBuilder\DTOs\PromptPayloadDTO;
+use LA87\AIPromptBuilder\DTOs\PromptConfigDTO;
 use LA87\AIPromptBuilder\Enums\AIModelEnum;
-use LA87\AIPromptBuilder\Exceptions\MissingFunctionCallException;
-use LA87\AIPromptBuilder\Exceptions\MissingFunctionResultException;
+use LA87\AIPromptBuilder\Services\Pipes\BuildPromptPipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolveMetaPipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolvePromptPipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolveRolePipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolveToolsPipe;
+use LA87\AIPromptBuilder\Services\Pipes\SetInitialParamsPipe;
+use OpenAI;
 use OpenAI\Client;
-use OpenAI\Exceptions\TransporterException;
 
 class AIPromptBuilderService
 {
-    protected AIModelEnum $model = AIModelEnum::GPT4_O;
-    protected string $prompt = '';
-    protected string $role = '';
-    protected array $functions = [];
-    protected array $meta = [];
-    protected array $history = [];
-    protected float $temperature = 0.8;
-    protected int|null $maxTokens = null;
-    protected int|null $cacheTTL = null;
-
+    protected Client $client;
+    protected PromptConfigDTO $config;
     private array $functionResults = [];
 
     public function __construct(
-        protected Client $client,
-    )
-    {
-        $this->cacheTTL = config('ai-prompt-builder.cache_ttl');
-    }
+        string|null $apiKey,
+        string $defaultModel,
+        float $defaultTemperature,
+        int $cacheTTL
+    ) {
+        $this->client = OpenAI::client($apiKey);
 
-    public function buildPrompt(): string
-    {
-        $prompt = $this->prompt;
-
-        foreach ($this->meta as $key => $value) {
-            $prompt = str_replace(':' . $key, $value, $prompt);
+        if(!in_array($defaultModel, AIModelEnum::toArray())) {
+            throw new \Exception('Default model not found');
         }
 
-        foreach ($this->functions as $key => $function) {
-            $prompt = str_replace(':function'.$key+1, $function->getName(), $prompt);
-        }
+        $defaultModel = AIModelEnum::from($defaultModel);
 
-        return normalizeWhitespace($prompt);
+        $this->config = new PromptConfigDTO($defaultModel, $defaultTemperature, $cacheTTL);
     }
 
-    public function buildRole(): array|string|null
+    public function model(AIModelEnum $model): self
     {
-        $role = $this->role;
-
-        foreach ($this->meta as $key => $value) {
-            $role = str_replace(':' . $key, $value, $role);
-        }
-
-        foreach ($this->functions as $key => $function) {
-            $role = str_replace(':function'.$key+1, $function->getName(), $role);
-        }
-
-        return normalizeWhitespace($role);
-    }
-
-    public function setModel(AIModelEnum $model): self
-    {
-        $this->model = $model;
+        $this->config->model = $model;
         return $this;
     }
 
-    public function setPrompt($prompt): self
+    public function prompt($prompt): self
     {
-        $this->prompt = $prompt;
+        $this->config->prompt = $prompt;
         return $this;
     }
 
-    public function setFunctionCalls(array $functions): self
+    public function role(string $role): self
     {
-        $this->functions = array_merge($this->functions, $functions);
+        $this->config->role = $role;
         return $this;
     }
 
-    public function setRole(string $role): self
+    public function temperature(float $temperature): self
     {
-        $this->role = $role;
+        $this->config->temperature = $temperature;
         return $this;
     }
 
-    public function setTemperature(float $temperature): self
+    public function limitTokens(int $maxTokens): self
     {
-        $this->temperature = $temperature;
+        $this->config->maxTokens = $maxTokens;
         return $this;
     }
 
-    public function setMaxTokens(int $maxTokens): self
+    public function meta(array $meta): self
     {
-        $this->maxTokens = $maxTokens;
+        $this->config->meta = $meta;
         return $this;
     }
 
-    public function setMeta(array $meta): self
+    public function history(array $history): self
     {
-        $this->meta = $meta;
+        $this->config->history = $history;
         return $this;
     }
 
-    public function getMessages(): array
+    /**
+     * @param AIFunctionInterface[] $tools
+     * @return $this
+     */
+    public function tools(array $tools): self
     {
-        return [
-            ['role' => 'system', 'content' => $this->buildRole()],
-            ...$this->history,
-            ['role' => 'user', 'content' => $this->buildPrompt()],
-        ];
-    }
-
-    public function setHistory(array $history): self
-    {
-        $this->history = $history;
-        return $this;
-    }
-
-    public function setAvailableFunction(AIFunctionInterface $function): self
-    {
-        $this->functions[] = new $function;
-        return $this;
-    }
-
-    public function getFunctions()
-    {
-        $functions = [];
-
-        foreach ($this->functions as $function) {
-            $functions[] = [
-                'type' => 'function',
-                'function' => [
-                    'name' => $function->getName(),
-                    'description' => $function->getDescription(),
-                    'parameters' => $function->getParametersSchema(),
-                ]
-            ];
-        }
-
-        dd($functions);
-
-        return $functions;
-    }
-
-    public function getFunctionsParam(): array
-    {
-        $functions = $this->getFunctions();
-
-        return count($functions) > 0 ? ['functions' => $functions] : [];
-    }
-
-    public function getFunctionCallParam(): array
-    {
-        $functions = $this->getFunctionCall();
-
-        return count($functions) > 0 ? ['function_call' => $functions] : [];
-    }
-
-    public function getFunctionCall()
-    {
-        $functions = [];
-
-        foreach ($this->functions as $function) {
-            $functions[] = [
-                'name' => $function->getName(),
-            ];
-        }
-
-        return $functions[0];
-    }
-
-    public function getParamsForChat(): array
-    {
-        return [
-            'model' => $this->model,
-            'messages' => $this->getMessages(),
-            ...$this->getFunctionsParam(),
-            ...$this->getFunctionCallParam(),
-            'temperature' => $this->temperature,
-            'max_tokens' => $this->maxTokens,
-        ];
-    }
-
-    public function ask(): ChatResponseDTO
-    {
-        $data = $this->getData();
-
-        $this->validateState();
-
-        $retryCount = 3;
-        $success = false;
-
-        while (!$success && $retryCount > 0) {
-            try {
-                $response = $this->client->chat()->create($data);
-                $success = true;
-            } catch (TransporterException $e) {
-                $retryCount--;
-
-                 sleep(2);
-
-                if ($retryCount <= 0) {
-                    throw $e;
-                }
+        // check if implements interface
+        foreach ($tools as $tool) {
+            if (! $tool instanceof AIFunctionInterface) {
+                throw new \Exception('Tool must implement AIFunctionInterface');
             }
         }
 
-        return ChatResponseDTO::parse($response);
-
-    }
-
-    /**
-     * @throws MissingFunctionCallException
-     */
-    public function askAndExecute(): self
-    {
-        $response = $this->ask();
-
-        if(!$response->functionCall) {
-            throw new MissingFunctionCallException;
-        }
-
-        $this->functionResults = collect($this->functions)
-            ->filter(fn(AIFunctionInterface $function) => $function->getName() === $response->functionCall->name)
-            ->mapWithKeys(fn(AIFunctionInterface $function) => [
-                $function->getName() => $function->execute(json_decode($response->functionCall->arguments))
-            ])
-            ->toArray();
-
+        $this->config->tools = array_merge($this->config->tools, $tools);
         return $this;
     }
 
-    /**
-     * @throws MissingFunctionResultException
-     */
-    public function getFunctionResult(string $functionName)
+    public function tool(array $tool): self
     {
-        $functionResults = collect($this->functionResults);
-
-        if(!$functionResults->has($functionName)) {
-            throw new MissingFunctionResultException;
-        }
-
-        return $functionResults->get($functionName);
+        $this->config->tools[] = $tool;
+        return $this;
     }
 
-    public function listModels(): array
+    public function toolChoice(array|string $toolChoice): self
     {
-        $response = $this->client->models()->list();
-
-        return collect($response->data)->pluck('id')->toArray();
+        $this->config->tool_choice = $toolChoice;
+        return $this;
     }
 
-    /**
-     * @throws \Exception
-     */
-    private function validateState(): void
+    public function getParameters(): ChatParametersDTO
     {
-        if(!$this->cacheTTL) {
-            throw new \Exception('Cache TTL missing');
-        }
+        return app(Pipeline::class)
+            ->send(
+                new PromptPayloadDTO(
+                    $this->config,
+                    new ChatParametersDTO()
+                )
+            )
+            ->through([
+                SetInitialParamsPipe::class,
+                ResolveRolePipe::class,
+                ResolvePromptPipe::class,
+                ResolveToolsPipe::class,
+            ])
+            ->then(function (PromptPayloadDTO $payload) {
+                return $payload->parameters;
+            });
     }
-
-    public function dd(): self
-    {
-        dd($this->getData());
-    }
-
-    private function getData(): array
-    {
-        $data = [
-            'model' => $this->model,
-            'messages' => $this->getMessages(),
-//            'functions' => $this->getFunctions(),
-//            'function_call' => $this->getFunctionCall(),
-//            'temperature' => $this->temperature,
-//            'max_tokens' => $this->maxTokens,
-        ];
-
-        if(count($this->functions)) {
-            $data['tools'] = $this->getFunctions();
-        }
-    }
-
 }

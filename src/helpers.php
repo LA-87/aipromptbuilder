@@ -16,6 +16,16 @@ if (!function_exists('ai')) {
     }
 }
 
+if (!function_exists('fillPlaceholders')) {
+    function fillPlaceholders(string $str, array $placeholders): string {
+        $wrappedPlaceholders = array_map(fn($key) => "{{{$key}}}", array_keys($placeholders));
+
+        $values = array_values($placeholders);
+
+        return str_replace($wrappedPlaceholders, $values, $str);
+    }
+}
+
 if (!function_exists('estimateOpenAITokens')) {
     function estimateOpenAITokens($text)
     {
@@ -28,14 +38,6 @@ if (!function_exists('estimateOpenAITokens')) {
         if ($return_code == 0) {
             return intval($output[0]);
         } else {
-//            activity('token estimation')
-//                ->withProperties([
-//                    'command' => $command,
-//                    'output' => $output,
-//                    'return_code' => $return_code
-//                ])
-//                ->log('Cannot estimate token count');
-
             throw new Exception('Cannot estimate token count');
         }
     }

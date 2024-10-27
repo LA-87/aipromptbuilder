@@ -53,9 +53,9 @@ $client = app(Client::class);
 
 $service = new AIPromptBuilderService($client);
 
-$response = $service->setModel(AIModelEnum::GPT4)
-                    ->setPrompt('What is the capital of France?')
-                    ->setRole('You are a knowledgeable assistant.')
+$response = $service->model(AIModelEnum::GPT4)
+                    ->prompt('What is the capital of France?')
+                    ->role('You are a knowledgeable assistant.')
                     ->ask();
 
 echo $response->completion;
