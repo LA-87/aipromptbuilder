@@ -18,6 +18,7 @@ enum AIModelEnum: string
     case TEXT_CURIE_001 = 'text-curie-001';
     case TEXT_BABBAGE_001 = 'text-babbage-001';
     case TEXT_ADA_001 = 'text-ada-001';
+    case WHISPER_1 = 'whisper-1';
 
     public static function toArray(): array
     {

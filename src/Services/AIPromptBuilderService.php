@@ -172,8 +172,10 @@ class AIPromptBuilderService
 
     public function transcribe(string $path): string
     {
+        $this->model(AIModelEnum::WHISPER_1);
+
         $response = $this->client->audio()->transcribe([
-            'model' => 'whisper-1',
+            'model' => $this->config->model->value,
             'file' => fopen($path, 'r'),
             'response_format' => 'text',
 //            'response_format' => 'verbose_json',
