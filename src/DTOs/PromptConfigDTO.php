@@ -10,7 +10,7 @@ class PromptConfigDTO
     public string $prompt = '';
     public string $role = '';
     public array $tools = [];
-    public array|string $tool_choice = [];
+    public array|string|null $tool_choice = null;
     public array $meta = [];
     public array $history = [];
     public float $temperature;
@@ -22,7 +22,6 @@ class PromptConfigDTO
         $this->model = $model;
         $this->temperature = $temperature;
         $this->cacheTTL = $cacheTTL;
-        $this->tool_choice = 'auto';
     }
 
     public function toArray()

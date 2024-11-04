@@ -46,6 +46,40 @@ test('can use meta in prompt', function () {
     $this->assertEquals('meta:test123', $data['messages'][1]['content']);
 })->group('a');
 
+test('can test', function () {
+    $this->markTestSkipped('RT');
+
+    $data = ai()
+        ->role('You are an AI assistant.')
+        ->prompt('How tall is the Eiffel Tower?')
+        ->send();
+
+    dd($data);
+})->group('ask');
+
+test('can test 2', function () {
+//    $this->markTestSkipped('RT');
+
+    $response = ai()
+        ->role('You are an AI assistant.')
+        ->prompt('What weather in france')
+        ->tools([
+            'weather' => new WeatherForecast()
+        ])
+        ->send();
+
+    if($response->needsFunctionExecution()) {
+        $response->executRequestedFunctions();
+        $data = $response->getFunctionResuts();
+        $data = $response->getFunctionResut('weather');
+    }
+
+
+
+    dd($data->response());
+})->group('ask1');
+
+
 test('builder with functions in prompt', function () {
 
     $data = ai()
@@ -64,9 +98,6 @@ test('builder with functions in prompt', function () {
     $this->assertContains('string', $data['tools'][0]['parameters']['properties']['date']['type']);
     $this->assertContains('null', $data['tools'][0]['parameters']['properties']['date']['type']);
     $this->assertEquals('The date for the forecast in YYYY-MM-DD format.', $data['tools'][0]['parameters']['properties']['date']['description']);
-
-
-
 })->group('b');
 
 test('builder with toolchoise', function () {

@@ -10,7 +10,9 @@ class ResolveToolsPipe
 {
     public function handle(PromptPayloadDTO $payload, Closure $next)
     {
-        $payload->parameters->tools = array_values(array_map(fn($tool) => $tool->getSchema(), $payload->config->tools));
+        if($payload->config->tools && count($payload->config->tools) > 0) {
+            $payload->parameters->tools = array_values(array_map(fn($tool) => $tool->getSchema(), $payload->config->tools));
+        }
 
         if(is_array($payload->config->tool_choice)) {
             $payload->parameters->tool_choice = array_values(array_map(fn($tool) => $tool->getSchema(), $payload->config->tool_choice))[0];

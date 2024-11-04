@@ -2,25 +2,27 @@
 
 namespace LA87\AIPromptBuilder\Services;
 
-use Illuminate\Pipeline\Pipeline;
-use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
-use LA87\AIPromptBuilder\DTOs\ChatParametersDTO;
-use LA87\AIPromptBuilder\DTOs\PromptPayloadDTO;
-use LA87\AIPromptBuilder\DTOs\PromptConfigDTO;
-use LA87\AIPromptBuilder\Enums\AIModelEnum;
-use LA87\AIPromptBuilder\Services\Pipes\BuildPromptPipe;
-use LA87\AIPromptBuilder\Services\Pipes\ResolveMetaPipe;
-use LA87\AIPromptBuilder\Services\Pipes\ResolvePromptPipe;
-use LA87\AIPromptBuilder\Services\Pipes\ResolveRolePipe;
-use LA87\AIPromptBuilder\Services\Pipes\ResolveToolsPipe;
-use LA87\AIPromptBuilder\Services\Pipes\SetInitialParamsPipe;
 use OpenAI;
 use OpenAI\Client;
+use Illuminate\Pipeline\Pipeline;
+use OpenAI\Responses\Chat\CreateResponse;
+use LA87\AIPromptBuilder\Enums\AIModelEnum;
+use OpenAI\Exceptions\TransporterException;
+use LA87\AIPromptBuilder\DTOs\PromptConfigDTO;
+use LA87\AIPromptBuilder\DTOs\PromptPayloadDTO;
+use LA87\AIPromptBuilder\DTOs\ChatParametersDTO;
+use LA87\AIPromptBuilder\Responses\ChatResponse;
+use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
+use LA87\AIPromptBuilder\Services\Pipes\ResolveRolePipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolveToolsPipe;
+use LA87\AIPromptBuilder\Services\Pipes\ResolvePromptPipe;
+use LA87\AIPromptBuilder\Services\Pipes\SetInitialParamsPipe;
 
 class AIPromptBuilderService
 {
     protected Client $client;
     protected PromptConfigDTO $config;
+    protected CreateResponse $response;
     private array $functionResults = [];
 
     public function __construct(
@@ -96,6 +98,7 @@ class AIPromptBuilderService
         }
 
         $this->config->tools = array_merge($this->config->tools, $tools);
+
         return $this;
     }
 
@@ -129,5 +132,54 @@ class AIPromptBuilderService
             ->then(function (PromptPayloadDTO $payload) {
                 return $payload->parameters;
             });
+    }
+
+    public function send(): ChatResponse|null
+    {
+        $data = $this->getParameters()->toArray();
+
+        $retryCount = 3;
+        $success = false;
+        $response = null;
+
+        while (!$success && $retryCount > 0) {
+            try {
+//                dd(sha1(json_encode($data)));
+                $response = cache()->remember(
+                    sha1(json_encode($data)),
+                    $this->config->cacheTTL,
+                    fn() => $this->client->chat()->create($data)
+                );
+
+                $success = true;
+            } catch (TransporterException $e) {
+                $retryCount--;
+
+                sleep(2);
+
+                if ($retryCount <= 0) {
+                    throw $e;
+                }
+            }
+        }
+
+        if(!$response) {
+            return null;
+        }
+
+        return ChatResponse::new($response, $this->config->tools);
+    }
+
+    public function transcribe(string $path): string
+    {
+        $response = $this->client->audio()->transcribe([
+            'model' => 'whisper-1',
+            'file' => fopen($path, 'r'),
+            'response_format' => 'text',
+//            'response_format' => 'verbose_json',
+//            'timestamp_granularities' => ['segment', 'word']
+        ]);
+
+        return $response->text;
     }
 }

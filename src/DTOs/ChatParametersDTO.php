@@ -10,7 +10,7 @@ class ChatParametersDTO
     public array $messages = [];
     public float $temperature;
     public int|null $max_completion_tokens = null;
-    public array|string $tool_choice = 'auto';
+    public array|string|null $tool_choice = null;
     public array|null $tools = null;
 
     public function toArray()

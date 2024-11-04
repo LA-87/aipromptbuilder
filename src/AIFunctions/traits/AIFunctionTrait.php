@@ -6,6 +6,21 @@ trait AIFunctionTrait
 {
     public bool $required = false;
 
+    public function getName(): string
+    {
+        $reflectionClass = new \ReflectionClass($this);
+
+        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
+            $docComment = $method->getDocComment();
+
+            if ($this->hasAiFunctionAnnotation($docComment)) {
+                return $method->getName();
+            }
+        }
+
+        throw new \Exception('No method with @aiFunction annotation found');
+    }
+
     public function getSchema(): array
     {
         $reflectionClass = new \ReflectionClass($this);
@@ -19,7 +34,7 @@ trait AIFunctionTrait
             $methodDescription = $this->extractMethodDescription($docComment);
             $isAiFunction = $this->hasAiFunctionAnnotation($docComment);
 
-            if(!$isAiFunction) continue;
+            if (!$isAiFunction) continue;
 
             $parameters = $method->getParameters();
             $properties = [];
@@ -50,17 +65,21 @@ trait AIFunctionTrait
             }
 
             $functionsSchema[] = [
-                'name' => $methodName,
-                'description' => $methodDescription,
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => $properties,
-                    'required' => $requiredParameters
-                ],
+                'type' => 'function',
+                'function' => [
+                    'name' => $methodName,
+                    'description' => $methodDescription,
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => $properties,
+                        'required' => $requiredParameters,
+                        'additionalProperties' => false
+                    ],
+                ]
             ];
         }
 
-        if(count($functionsSchema) > 1) {
+        if (count($functionsSchema) > 1) {
             throw new \Exception('Multiple AIFunctions found');
         }
 

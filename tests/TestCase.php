@@ -22,7 +22,7 @@ abstract class TestCase extends BaseTestCase
         $app->bootstrapWith([LoadEnvironmentVariables::class]);
         parent::getEnvironmentSetUp($app);
 
-        $app['config']->set('ai-prompt-builder.api_key', 'sk-123');
+        $app['config']->set('ai-prompt-builder.api_key', env('OPENAI_API_KEY', 'sk-123'));
         $app['config']->set('ai-prompt-builder.cache_ttl', 60 * 60);
         $app['config']->set('ai-prompt-builder.default_temperature', 0.8);
         $app['config']->set('ai-prompt-builder.default_model', 'gpt-3.5-turbo');
