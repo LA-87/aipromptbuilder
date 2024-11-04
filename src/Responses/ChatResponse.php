@@ -10,11 +10,12 @@ class ChatResponse
     /**
      * @var CreateResponseToolCall[]|null
      */
+    public string|null $content;
     protected array|null $toolsCalls;
     protected array|null $toolsCallResults;
     protected array|null $toolsByFunction;
     protected array|null $functionAliases;
-    protected string|null $text;
+    protected string|null $finishReason;
 
     public function __construct(array|null $toolsCalls, array|null $tools, string|null $text)
     {
@@ -31,7 +32,7 @@ class ChatResponse
             return $result;
         });
 
-        $this->text = $text;
+        $this->content = $text;
     }
 
     public static function new(CreateResponse $response, array $tools): self
@@ -41,6 +42,14 @@ class ChatResponse
                 $response->choices[0]->message->toolCalls,
                 $tools,
                 null
+            );
+        }
+
+        if($response->choices[0]->finishReason === 'stop') {
+            return new self(
+                null,
+                $tools,
+                $response->choices[0]->message->content
             );
         }
     }

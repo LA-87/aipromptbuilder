@@ -1,159 +1,125 @@
-# AI Prompt Builder for Laravel
 
-## Introduction
+# AIPromptBuilder
 
-The AI Prompt Builder package provides a streamlined way to interact with OpenAI's models within a Laravel application. It facilitates the construction of prompts, management of function calls, and handling of responses in a structured and configurable manner.
+AIPromptBuilder is a Laravel package that simplifies building and managing prompts for AI models, using OpenAI’s API. It provides a structured way to configure prompts, roles, tools, and parameters for creating and sending chat requests, as well as transcribing audio using Whisper.
+
+## Features
+
+- Easily configure prompts, models, temperature, and tokens.
+- Supports AI function tools to enhance responses.
+- Caches responses to reduce API requests.
+- Transcribe audio with Whisper.
 
 ## Installation
 
-First, install the package via Composer:
+1. **Install the package via Composer**:
+   ```bash
+   composer require la87/ai-prompt-builder
+   ```
 
-```bash
-composer require la87/ai-prompt-builder
-```
+2. **Publish the Configuration**:
+   ```bash
+   php artisan vendor:publish --provider="LA87\AIPromptBuilder\AIPromptBuilderServiceProvider"
+   ```
 
-Then, publish the configuration file:
-
-```bash
-php artisan vendor:publish --provider="LA87\AIPromptBuilder\AIPromptBuilderServiceProvider"
-```
-
-Finally, configure the `ai-prompt-builder.php` file located in your `config` directory with your OpenAI API key and other settings as needed.
-
-## Configuration
-
-The `ai-prompt-builder.php` configuration file includes settings such as:
-
-```php
-return [
-    'api_key' => env('OPENAI_API_KEY', ''),
-    'cache_ttl' => env('AI_PROMPT_CACHE_TTL', 600),
-];
-```
-
-Ensure you set your OpenAI API key in your `.env` file:
-
-```
-OPENAI_API_KEY=your-api-key
-AI_PROMPT_CACHE_TTL=600
-```
+3. **Configure `.env`**:
+   Set your OpenAI API key and other parameters in `.env`:
+   ```env
+   AI_PROMPT_BUILDER_API_KEY=your_openai_api_key
+   AI_PROMPT_BUILDER_DEFAULT_MODEL=gpt-3.5-turbo
+   AI_PROMPT_BUILDER_DEFAULT_TEMPERATURE=0.7
+   AI_PROMPT_BUILDER_CACHE_TTL=3600
+   ```
 
 ## Usage
 
-### Basic Usage
-
-To use the AI Prompt Builder service, you need to create an instance of the `AIPromptBuilderService` and configure it with your desired settings:
+### Basic Prompt Creation
 
 ```php
 use LA87\AIPromptBuilder\Services\AIPromptBuilderService;
 use LA87\AIPromptBuilder\Enums\AIModelEnum;
-use OpenAI\Client;
 
-$client = app(Client::class);
+$aiPromptBuilder = app(AIPromptBuilderService::class);
 
-$service = new AIPromptBuilderService($client);
+$response = $aiPromptBuilder
+    ->model(AIModelEnum::GPT_3_5_TURBO)
+    ->prompt('Translate "Hello" to French.')
+    ->temperature(0.5)
+    ->send();
 
-$response = $service->model(AIModelEnum::GPT4)
-                    ->prompt('What is the capital of France?')
-                    ->role('You are a knowledgeable assistant.')
-                    ->ask();
-
-echo $response->completion;
+echo $response->content;
 ```
 
-### Using Function Calls
+### Configuring the Prompt
 
-You can define and use functions that the AI can call during the interaction. Implement the `AIFunctionInterface` for any custom functions:
+- **Setting Role**: Define a role for the AI to follow (e.g., "assistant").
+  ```php
+  $aiPromptBuilder->role('translator');
+  ```
 
+- **Adjusting Temperature**: Control the creativity of the AI's response.
+  ```php
+  $aiPromptBuilder->temperature(0.8);
+  ```
+
+- **Token Limit**: Limit the number of tokens in the response.
+  ```php
+  $aiPromptBuilder->limitTokens(100);
+  ```
+
+- **Adding History**: Provide conversation history for context.
+  ```php
+  $aiPromptBuilder->history($conversationHistoryArray);
+  ```
+
+### Using AI Function Tools
+
+AIPromptBuilder supports custom tools that extend response capabilities:
+
+1. **Define a Tool**: Tools must implement `AIFunctionInterface`.
+2. **Add Tools**:
+   ```php
+   $aiPromptBuilder->tools([$toolInstance1, $toolInstance2]);
+   ```
+
+### Transcribing Audio
+
+You can transcribe audio files with the `transcribe` method:
 ```php
-use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
-use stdClass;
-
-class GetWeatherFunction implements AIFunctionInterface
-{
-    public function getName(): string
-    {
-        return 'getWeather';
-    }
-
-    public function getDescription(): string
-    {
-        return 'Fetches the current weather for a given location.';
-    }
-
-    public function getParametersSchema(): array
-    {
-        return [
-            'type' => 'object',
-            'properties' => [
-                'location' => [
-                    'type' => 'string',
-                    'description' => 'The location to get the weather for.'
-                ]
-            ],
-            'required' => ['location']
-        ];
-    }
-
-    public function getMustBeCalled(): bool
-    {
-        return true;
-    }
-
-    public function execute(stdClass|null $arguments = null)
-    {
-        // Custom logic to fetch the weather
-        return 'Sunny, 25°C';
-    }
-}
+$text = $aiPromptBuilder->transcribe('/path/to/audio/file.wav');
+echo $text;
 ```
 
-Then, register and use the function in your prompt:
+## Configuration
 
-```php
-$service->setFunctionCalls([new GetWeatherFunction()])
-        ->askAndExecute();
-
-$result = $service->getFunctionResult('getWeather');
-echo $result;
-```
-
-### Listing Available Models
-
-You can list all available OpenAI models using the `listModels` method:
-
-```php
-$models = $service->listModels();
-print_r($models);
-```
-
-### Handling Function Results
-
-To handle the results of function calls, use the `askAndExecute` method followed by `getFunctionResult`:
-
-```php
-try {
-    $service->askAndExecute();
-    $result = $service->getFunctionResult('getWeather');
-    echo $result;
-} catch (MissingFunctionCallException $e) {
-    echo "Function call missing!";
-} catch (MissingFunctionResultException $e) {
-    echo "Function result missing!";
-}
-```
+The package's configuration file (`config/ai-prompt-builder.php`) contains settings for API key, model, temperature, and caching. Modify these as needed.
 
 ## Exception Handling
 
-The package includes custom exceptions for handling various error states:
+The package will retry failed API calls up to 3 times for resilience. In case of multiple failures, it throws a `TransporterException`.
 
-- `MissingFunctionCallException`: Thrown when a function call is expected but not returned.
-- `MissingFunctionResultException`: Thrown when a function result is expected but not found.
+## Testing
 
-## Contributing
+To run the package tests, add the package’s `tests` directory in your Laravel application’s `phpunit.xml`:
 
-Contributions are welcome! Please submit a pull request or create an issue to report bugs or suggest new features.
+```xml
+<testsuites>
+    <testsuite name="Feature">
+        <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+</testsuites>
+```
+
+Run tests with:
+```bash
+php artisan test
+```
 
 ## License
 
-This package is open-sourced software licensed under the [MIT license](LICENSE).
+This package is open-source software licensed under the [MIT license](LICENSE).
+```
+
+## Contributing
+
+We welcome contributions! Feel free to submit issues or pull requests for new features, bug fixes, or improvements.
