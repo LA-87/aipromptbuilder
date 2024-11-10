@@ -1,7 +1,7 @@
 {
     "name": "la-87/ai-prompt-builder",
     "description": "AIPromptBuilder",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "require": {
         "php": "^8.2",
         "symfony/http-client": "^7.0",
