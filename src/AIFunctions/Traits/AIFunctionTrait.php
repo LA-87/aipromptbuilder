@@ -1,6 +1,6 @@
 <?php
 
-namespace LA87\AIPromptBuilder\AIFunctions\traits;
+namespace LA87\AIPromptBuilder\AIFunctions\Traits;
 
 trait AIFunctionTrait
 {

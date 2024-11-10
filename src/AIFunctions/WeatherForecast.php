@@ -2,7 +2,7 @@
 
 namespace LA87\AIPromptBuilder\AIFunctions;
 
-use LA87\AIPromptBuilder\AIFunctions\traits\AIFunctionTrait;
+use LA87\AIPromptBuilder\AIFunctions\Traits\AIFunctionTrait;
 use LA87\AIPromptBuilder\Contracts\AIFunctionInterface;
 
 class WeatherForecast implements AIFunctionInterface
