@@ -59,7 +59,7 @@ class ChatResponse
         return filled($this->toolsCalls);
     }
 
-    public function executToolCalls(): void
+    public function executToolCalls(): self
     {
         foreach ($this->toolsCalls as $toolsCall) {
             if($toolsCall->type === 'function') {
@@ -83,6 +83,8 @@ class ChatResponse
                 }
             }
         }
+
+        return $this;
     }
 
     public function getToolCallResults(): array
