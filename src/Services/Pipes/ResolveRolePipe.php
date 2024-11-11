@@ -13,6 +13,10 @@ class ResolveRolePipe
         $role = normalizeWhitespace($role);
         $role = normalizeNewLines($role);
 
+        $role = fillPlaceholders($role, [
+            'br' => PHP_EOL
+        ]);
+
         $payload->parameters->messages[] = ['role' => 'system', 'content' => $role];
 
         return $next($payload);
