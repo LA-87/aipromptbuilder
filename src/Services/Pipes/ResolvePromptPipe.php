@@ -11,6 +11,9 @@ class ResolvePromptPipe
     {
         $prompt = fillPlaceholders($payload->config->prompt, $payload->config->meta);
 
+        $prompt = normalizeWhitespace($prompt);
+        $prompt = normalizeNewLines($prompt);
+
         $payload->parameters->messages[] = ['role' => 'user', 'content' => $prompt];
 
         return $next($payload);

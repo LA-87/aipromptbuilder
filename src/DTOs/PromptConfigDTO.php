@@ -9,6 +9,8 @@ class PromptConfigDTO
     public AIModelEnum $model = AIModelEnum::GPT4_O;
     public string $prompt = '';
     public string $role = '';
+    public bool $normalizePrompt = true;
+    public bool $normalizeRole = true;
     public array $tools = [];
     public array|string|null $tool_choice = null;
     public array $meta = [];

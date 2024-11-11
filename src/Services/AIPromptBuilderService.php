@@ -54,6 +54,16 @@ class AIPromptBuilderService
         return $this;
     }
 
+    public function normalizePrompt(bool $normalize = true): self
+    {
+        $this->config->normalizePrompt = $normalize;
+    }
+
+    public function normalizeRole(bool $normalize = true): self
+    {
+        $this->config->normalizeRole = $normalize;
+    }
+
     public function role(string $role): self
     {
         $this->config->role = $role;
