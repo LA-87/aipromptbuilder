@@ -41,4 +41,15 @@ class PromptConfigDTO
             'cache_ttl' => $this->cacheTTL,
         ];
     }
+
+    public function getToolsPlaceholderReplacements(): array
+    {
+        $result = [];
+
+        foreach (array_keys($this->tools) as $placeholder) {
+            $result[$placeholder] = $this->tools[$placeholder]->getName();
+        }
+
+        return $result;
+    }
 }

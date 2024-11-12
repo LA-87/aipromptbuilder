@@ -10,6 +10,7 @@ class ResolvePromptPipe
     public function handle(PromptPayloadDTO $payload, Closure $next)
     {
         $prompt = fillPlaceholders($payload->config->prompt, $payload->config->meta);
+        $prompt = fillPlaceholders($prompt, $payload->config->getToolsPlaceholderReplacements());
 
         $prompt = normalizeWhitespace($prompt);
         $prompt = normalizeNewLines($prompt);
