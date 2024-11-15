@@ -19,7 +19,11 @@ class ResolveToolsPipe
         }
 
         if(is_string($payload->config->tool_choice)) {
-            $payload->parameters->tool_choice = $payload->config->tool_choice;
+            $placeholders = $payload->config->getToolsPlaceholderReplacements();
+
+            if(array_key_exists($payload->config->tool_choice, $placeholders)) {
+                $payload->parameters->tool_choice[] = $placeholders[$payload->config->tool_choice];
+            }
         }
 
         return $next($payload);

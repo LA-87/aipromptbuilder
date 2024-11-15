@@ -66,8 +66,8 @@ class ChatResponse
                 $methodName = $toolsCall->function->name;
                 $arguments = json_decode($toolsCall->function->arguments, true);
 
-                if (isset($this->tools[$methodName])) {
-                    $tool = $this->tools[$methodName];
+                if (isset($this->toolsByFunction[$methodName])) {
+                    $tool = $this->toolsByFunction[$methodName];
 
                     $reflectionMethod = new \ReflectionMethod($tool, $methodName);
                     $parameters = [];
