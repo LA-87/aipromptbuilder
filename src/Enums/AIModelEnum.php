@@ -4,6 +4,8 @@ namespace LA87\AIPromptBuilder\Enums;
 
 enum AIModelEnum: string
 {
+    case O1_preview = 'o1-preview';
+    case O1_mini = 'o1-mini';
     case GPT4 = 'gpt-4';
     case GPT4_TURBO = 'gpt-4-turbo';
     case GPT4_O = 'gpt-4o';
@@ -58,16 +60,19 @@ enum AIModelEnum: string
     public function maxTokens(): int
     {
         return match($this) {
+            self::O1_preview => $this->maxTokensReal(),
+            self::O1_mini => $this->maxTokensReal(),
+            self::GPT4_0613 => 8192,
             self::GPT4 => $this->maxTokensReal(), //round($this->maxTokensReal() * 0.5),
-            self::GPT4_O => 128000,
-            self::GPT4_O_mini => 128000,
-            self::GPT4_TURBO => 4097,
+            self::GPT4_O => $this->maxTokensReal(),
+            self::GPT4_O_mini => $this->maxTokensReal(),
+            self::GPT4_TURBO => $this->maxTokensReal(),
             self::GPT4_0314 => $this->maxTokensReal(), round($this->maxTokensReal() * 0.5),
             self::GPT4_32k => 32768,
             self::GPT4_0314_32k => 32768,
-            self::GPT35_TURBO => 4097,
-            self::GPT35_TURBO_0301 => 4097,
-            self::GPT35_TURBO_0613 => 4097,
+            self::GPT35_TURBO => $this->maxTokensReal(),
+            self::GPT35_TURBO_0301 => $this->maxTokensReal(),
+            self::GPT35_TURBO_0613 => $this->maxTokensReal(),
             self::TEXT_EMBEDDING_ADA_002 => 2048,
             self::TEXT_CURIE_001 => 2048,
             self::TEXT_BABBAGE_001 => 2048,
@@ -78,6 +83,8 @@ enum AIModelEnum: string
     public function maxTokensReal(): int
     {
         return match($this) {
+            self::O1_preview => 128000,
+            self::O1_mini => 128000,
             self::GPT4 => 8192,
             self::GPT4_O => 128000,
             self::GPT4_TURBO => 4097,
