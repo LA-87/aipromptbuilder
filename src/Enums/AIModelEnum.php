@@ -7,6 +7,7 @@ enum AIModelEnum: string
     case GPT4 = 'gpt-4';
     case GPT4_TURBO = 'gpt-4-turbo';
     case GPT4_O = 'gpt-4o';
+    case GPT4_O_mini = 'gpt-4o-mini';
     case GPT4_0314 = 'gpt-4-0314';
     case GPT4_0613 = 'gpt-4-0613';
     case GPT4_32k = 'gpt-4-32k';
@@ -59,6 +60,7 @@ enum AIModelEnum: string
         return match($this) {
             self::GPT4 => $this->maxTokensReal(), //round($this->maxTokensReal() * 0.5),
             self::GPT4_O => 128000,
+            self::GPT4_O_mini => 128000,
             self::GPT4_TURBO => 4097,
             self::GPT4_0314 => $this->maxTokensReal(), round($this->maxTokensReal() * 0.5),
             self::GPT4_32k => 32768,

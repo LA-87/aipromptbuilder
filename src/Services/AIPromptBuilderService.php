@@ -194,4 +194,9 @@ class AIPromptBuilderService
 
         return $response->text;
     }
+
+    public function getAvailableModels(): array
+    {
+        return $this->client->models()->list()->data;
+    }
 }
