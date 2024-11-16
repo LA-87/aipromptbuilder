@@ -100,4 +100,30 @@ enum AIModelEnum: string
             self::TEXT_ADA_001 => 2048,
         };
     }
+
+    public function costPer1kTokens(): float
+    {
+        return match ($this) {
+            self::O1_preview => config("ai-prompt-builder." . self::O1_preview->value . ".cost-per-1k-tokens", 1),
+            self::O1_mini => config("ai-prompt-builder." . self::O1_mini->value . ".cost-per-1k-tokens", 1),
+            self::GPT4 => config("ai-prompt-builder." . self::GPT4->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_TURBO => config("ai-prompt-builder." . self::GPT4_TURBO->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_O => config("ai-prompt-builder." . self::GPT4_O->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_O_mini => config("ai-prompt-builder." . self::GPT4_O_mini->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_0314 => config("ai-prompt-builder." . self::GPT4_0314->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_0613 => config("ai-prompt-builder." . self::GPT4_0613->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_32k => config("ai-prompt-builder." . self::GPT4_32k->value . ".cost-per-1k-tokens", 1),
+            self::GPT4_0314_32k => config("ai-prompt-builder." . self::GPT4_0314_32k->value . ".cost-per-1k-tokens", 1),
+            self::GPT35_TURBO => config("ai-prompt-builder." . self::GPT35_TURBO->value . ".cost-per-1k-tokens", 1),
+            self::GPT35_TURBO_0301 => config("ai-prompt-builder." . self::GPT35_TURBO_0301->value . ".cost-per-1k-tokens", 1),
+            self::GPT35_TURBO_0613 => config("ai-prompt-builder." . self::GPT35_TURBO_0613->value . ".cost-per-1k-tokens", 1),
+            self::TEXT_EMBEDDING_ADA_002 => config("ai-prompt-builder." . self::TEXT_EMBEDDING_ADA_002->value . ".cost-per-1k-tokens", 1),
+            self::TEXT_CURIE_001 => config("ai-prompt-builder." . self::TEXT_CURIE_001->value . ".cost-per-1k-tokens", 1),
+            self::TEXT_BABBAGE_001 => config("ai-prompt-builder." . self::TEXT_BABBAGE_001->value . ".cost-per-1k-tokens", 1),
+            self::TEXT_ADA_001 => config("ai-prompt-builder." . self::TEXT_ADA_001->value . ".cost-per-1k-tokens", 1),
+            self::WHISPER_1 => config("ai-prompt-builder." . self::WHISPER_1->value . ".cost-per-1k-tokens", 1),
+            default => 1,
+        };
+    }
+
 }
