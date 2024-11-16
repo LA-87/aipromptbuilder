@@ -217,4 +217,9 @@ class AIPromptBuilderService
 
         return estimateOpenAITokens(json_encode($data));
     }
+
+    public function tokenToUsd(int $tokens): float
+    {
+        return ($tokens / 1000) * $this->config->model->costPer1KTokens();
+    }
 }
