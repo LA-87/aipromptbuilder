@@ -207,4 +207,14 @@ class AIPromptBuilderService
     {
         return $this->client->models()->list()->data;
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function getEstimateTokens(): int
+    {
+        $data = $this->getParameters()->toArray();
+
+        return estimateOpenAITokens(json_encode($data));
+    }
 }
