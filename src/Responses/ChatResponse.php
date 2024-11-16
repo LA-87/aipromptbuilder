@@ -16,10 +16,19 @@ class ChatResponse
     protected array|null $toolsByFunction = null;
     protected array|null $functionAliases = null;
     protected string|null $finishReason = null;
+    public int|null $prompt_tokens;
+    public int|null $completion_tokens;
 
-    public function __construct(array|null $toolsCalls, array|null $tools, string|null $text)
-    {
+    public function __construct(
+        array|null $toolsCalls,
+        array|null $tools,
+        string|null $text,
+        int|null $prompt_tokens,
+        int|null $completion_tokens,
+    ) {
         $this->toolsCalls = $toolsCalls;
+        $this->prompt_tokens = $prompt_tokens;
+        $this->completion_tokens = $completion_tokens;
 
         $this->toolsByFunction = array_reduce($tools, function ($result, $tool) {
             $functionName = $tool->getName();
@@ -44,7 +53,9 @@ class ChatResponse
             return new self(
                 $response->choices[0]->message->toolCalls,
                 $tools,
-                null
+                null,
+                $response->usage->promptTokens,
+                $response->usage->completionTokens
             );
         }
 
@@ -52,7 +63,9 @@ class ChatResponse
             return new self(
                 null,
                 $tools,
-                $response->choices[0]->message->content
+                $response->choices[0]->message->content,
+                $response->usage->promptTokens,
+                $response->usage->completionTokens
             );
         }
     }
