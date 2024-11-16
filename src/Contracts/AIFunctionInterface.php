@@ -7,4 +7,5 @@ use stdClass;
 interface AIFunctionInterface
 {
     public function getSchema(): array;
+    public function getSchemaForToolChoice(): array;
 }

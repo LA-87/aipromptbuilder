@@ -12,10 +12,10 @@ class ChatResponse
      */
     public string|null $content;
     protected array|null $toolsCalls;
-    protected array|null $toolsCallResults;
-    protected array|null $toolsByFunction;
-    protected array|null $functionAliases;
-    protected string|null $finishReason;
+    protected array|null $toolsCallResults = null;
+    protected array|null $toolsByFunction = null;
+    protected array|null $functionAliases = null;
+    protected string|null $finishReason = null;
 
     public function __construct(array|null $toolsCalls, array|null $tools, string|null $text)
     {
@@ -37,7 +37,10 @@ class ChatResponse
 
     public static function new(CreateResponse $response, array $tools): self
     {
-        if ($response->choices[0]->finishReason === 'tool_calls') {
+        if (
+            $response->choices[0]->finishReason === 'tool_calls' ||
+            ($response->choices[0]->finishReason === 'stop' && count($response->choices[0]->message->toolCalls) > 0)
+        ) {
             return new self(
                 $response->choices[0]->message->toolCalls,
                 $tools,
@@ -59,7 +62,7 @@ class ChatResponse
         return filled($this->toolsCalls);
     }
 
-    public function executToolCalls(): self
+    public function executeToolCalls(): self
     {
         foreach ($this->toolsCalls as $toolsCall) {
             if($toolsCall->type === 'function') {
@@ -105,5 +108,16 @@ class ChatResponse
         }
 
         return null;
+    }
+
+    public function dd()
+    {
+        dd([
+            'content' => $this->content,
+            'toolsCalls' => $this->toolsCalls,
+            'toolsCallResults' => $this->toolsCallResults,
+            'toolsByFunction' => $this->toolsByFunction,
+            'functionAliases' => $this->functionAliases
+        ]);
     }
 }

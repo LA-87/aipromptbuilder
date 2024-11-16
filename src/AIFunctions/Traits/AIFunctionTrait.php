@@ -86,6 +86,31 @@ trait AIFunctionTrait
         return $functionsSchema[0] ?? [];
     }
 
+    public function getSchemaForToolChoice(): array
+    {
+        $reflectionClass = new \ReflectionClass($this);
+        $methods = $reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC);
+
+        $functionsSchema = [];
+
+        foreach ($methods as $method) {
+            $docComment = $method->getDocComment();
+            $methodName = $method->getName();
+            $isAiFunction = $this->hasAiFunctionAnnotation($docComment);
+
+            if (!$isAiFunction) continue;
+
+            $functionsSchema[] = [
+                'type' => 'function',
+                'function' => [
+                    'name' => $methodName,
+                ]
+            ];
+        }
+
+        return $functionsSchema[0] ?? [];
+    }
+
     private function extractMethodDescription(?string $docComment): string
     {
         if ($docComment === false) return '';

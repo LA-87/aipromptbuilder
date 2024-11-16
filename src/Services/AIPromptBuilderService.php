@@ -94,6 +94,11 @@ class AIPromptBuilderService
         return $this;
     }
 
+    public function parallelToolCalls(bool $parallelToolCalls = true): self
+    {
+        $this->config->parallelToolCalls = $parallelToolCalls;
+    }
+
     /**
      * @param AIFunctionInterface[] $tools
      * @return $this
@@ -118,7 +123,7 @@ class AIPromptBuilderService
         return $this;
     }
 
-    public function toolChoice(array|string $toolChoice): self
+    public function toolChoice(string $toolChoice): self
     {
         $this->config->tool_choice = $toolChoice;
         return $this;

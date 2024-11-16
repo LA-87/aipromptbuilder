@@ -12,12 +12,13 @@ class PromptConfigDTO
     public bool $normalizePrompt = true;
     public bool $normalizeRole = true;
     public array $tools = [];
-    public array|string|null $tool_choice = null;
+    public string|null $tool_choice = null;
     public array $meta = [];
     public array $history = [];
     public float $temperature;
     public int|null $maxTokens = null;
     public int|null $cacheTTL = null;
+    public bool $parallelToolCalls = true;
 
     public function __construct(AIModelEnum $model, float $temperature, int|null $cacheTTL)
     {
@@ -34,6 +35,7 @@ class PromptConfigDTO
             'role' => $this->role,
             'tools' => $this->tools,
             'tool_choice' => $this->tool_choice,
+            'parallel_tool_calls' => $this->parallelToolCalls,
             'meta' => $this->meta,
             'history' => $this->history,
             'temperature' => $this->temperature,

@@ -3,7 +3,6 @@
 namespace LA87\AIPromptBuilder\Services\Pipes;
 
 use Closure;
-use LA87\AIPromptBuilder\DTOs\PromptConfigDTO;
 use LA87\AIPromptBuilder\DTOs\PromptPayloadDTO;
 
 class ResolveToolsPipe
@@ -14,15 +13,9 @@ class ResolveToolsPipe
             $payload->parameters->tools = array_values(array_map(fn($tool) => $tool->getSchema(), $payload->config->tools));
         }
 
-        if(is_array($payload->config->tool_choice)) {
-            $payload->parameters->tool_choice = array_values(array_map(fn($tool) => $tool->getSchema(), $payload->config->tool_choice))[0];
-        }
-
         if(is_string($payload->config->tool_choice)) {
-            $placeholders = $payload->config->getToolsPlaceholderReplacements();
-
-            if(array_key_exists($payload->config->tool_choice, $placeholders)) {
-                $payload->parameters->tool_choice[] = $placeholders[$payload->config->tool_choice];
+            if(array_key_exists($payload->config->tool_choice, $payload->config->tools)) {
+                $payload->parameters->tool_choice = $payload->config->tools[$payload->config->tool_choice]->getSchemaForToolChoice();
             }
         }
 
