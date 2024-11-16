@@ -33,13 +33,13 @@ class AIPromptBuilderService
     ) {
         $this->client = OpenAI::client($apiKey);
 
-        if(!in_array($defaultModel, AIModelEnum::toArray())) {
-            throw new \Exception('Default model not found');
-        }
-
         if($defaultModel instanceof AIModelEnum) {
             $defaultModel = $defaultModel->value;
         } else {
+            if(!in_array($defaultModel, AIModelEnum::toArray())) {
+                throw new \Exception('Default model not found');
+            }
+
             $defaultModel = AIModelEnum::from($defaultModel);
         }
 
