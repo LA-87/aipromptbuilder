@@ -27,7 +27,7 @@ class AIPromptBuilderService
 
     public function __construct(
         string|null $apiKey,
-        string $defaultModel,
+        string|AIModelEnum $defaultModel,
         float $defaultTemperature,
         int $cacheTTL
     ) {
@@ -37,7 +37,11 @@ class AIPromptBuilderService
             throw new \Exception('Default model not found');
         }
 
-        $defaultModel = AIModelEnum::from($defaultModel);
+        if($defaultModel instanceof AIModelEnum) {
+            $defaultModel = $defaultModel->value;
+        } else {
+            $defaultModel = AIModelEnum::from($defaultModel);
+        }
 
         $this->config = new PromptConfigDTO($defaultModel, $defaultTemperature, $cacheTTL);
     }
