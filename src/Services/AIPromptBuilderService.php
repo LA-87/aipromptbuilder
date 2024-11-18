@@ -224,4 +224,9 @@ class AIPromptBuilderService
 
         return ($tokens / 1000) * $this->config->model->costPer1KTokens();
     }
+
+    public function hash(): string
+    {
+        return sha1(json_encode($this->getParameters()));
+    }
 }
