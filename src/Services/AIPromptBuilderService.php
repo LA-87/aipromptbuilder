@@ -51,6 +51,11 @@ class AIPromptBuilderService
         return $this;
     }
 
+    public function getModel(): AIModelEnum
+    {
+        return $this->config->model;
+    }
+
     public function prompt($prompt): self
     {
         $this->config->prompt = $prompt;
