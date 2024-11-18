@@ -57,6 +57,16 @@ enum AIModelEnum: string
         };
     }
 
+    public function getLabel(): string
+    {
+        return match($this) {
+            self::O1_preview => 'O1 Preview',
+            self::O1_mini => 'O1 Mini',
+            self::GPT4_O => 'GPT-4 (OpenAI)',
+            self::GPT4_O_mini => 'GPT-4 (OpenAI) Mini',
+        };
+    }
+
     public function maxTokens(): int
     {
         return match($this) {
