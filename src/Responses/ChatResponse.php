@@ -2,6 +2,7 @@
 
 namespace LA87\AIPromptBuilder\Responses;
 
+use LA87\AIPromptBuilder\Enums\AIModelEnum;
 use OpenAI\Responses\Chat\CreateResponse;
 use OpenAI\Responses\Chat\CreateResponseToolCall;
 
@@ -18,6 +19,7 @@ class ChatResponse
     protected string|null $finishReason = null;
     public int|null $prompt_tokens;
     public int|null $completion_tokens;
+    public AIModelEnum $model;
 
     public function __construct(
         array|null $toolsCalls,
@@ -25,10 +27,12 @@ class ChatResponse
         string|null $text,
         int|null $prompt_tokens,
         int|null $completion_tokens,
+        AIModelEnum $model,
     ) {
         $this->toolsCalls = $toolsCalls;
         $this->prompt_tokens = $prompt_tokens;
         $this->completion_tokens = $completion_tokens;
+        $this->model = $model;
 
         $this->toolsByFunction = array_reduce($tools, function ($result, $tool) {
             $functionName = $tool->getName();
@@ -55,7 +59,8 @@ class ChatResponse
                 $tools,
                 null,
                 $response->usage->promptTokens,
-                $response->usage->completionTokens
+                $response->usage->completionTokens,
+                AIModelEnum::from($response->model)
             );
         }
 
@@ -65,7 +70,8 @@ class ChatResponse
                 $tools,
                 $response->choices[0]->message->content,
                 $response->usage->promptTokens,
-                $response->usage->completionTokens
+                $response->usage->completionTokens,
+                AIModelEnum::from($response->model)
             );
         }
     }
