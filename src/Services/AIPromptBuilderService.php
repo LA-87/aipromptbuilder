@@ -190,7 +190,7 @@ class AIPromptBuilderService
             return null;
         }
 
-        return ChatResponse::new($response, $this->config->tools);
+        return ChatResponse::new($response, $this->config->tools, $this->config->model);
     }
 
     public function transcribe(string $path): string

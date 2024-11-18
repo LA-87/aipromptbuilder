@@ -48,7 +48,7 @@ class ChatResponse
         $this->content = $text;
     }
 
-    public static function new(CreateResponse $response, array $tools): self
+    public static function new(CreateResponse $response, array $tools, AIModelEnum $model): self
     {
         if (
             $response->choices[0]->finishReason === 'tool_calls' ||
@@ -60,7 +60,7 @@ class ChatResponse
                 null,
                 $response->usage->promptTokens,
                 $response->usage->completionTokens,
-                AIModelEnum::from($response->model)
+                $model
             );
         }
 
@@ -71,7 +71,7 @@ class ChatResponse
                 $response->choices[0]->message->content,
                 $response->usage->promptTokens,
                 $response->usage->completionTokens,
-                AIModelEnum::from($response->model)
+                $model
             );
         }
     }
