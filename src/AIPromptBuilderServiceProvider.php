@@ -12,7 +12,7 @@ class AIPromptBuilderServiceProvider extends ServiceProvider {
             return new StringUtilsService();
         });
 
-        $this->app->singleton(AIPromptBuilderService::class, function (): AIPromptBuilderService {
+        $this->app->bind(AIPromptBuilderService::class, function (): AIPromptBuilderService {
             return new AIPromptBuilderService(
                 config('ai-prompt-builder.api_key'),
                 config('ai-prompt-builder.default_model'),
