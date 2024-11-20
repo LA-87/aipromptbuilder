@@ -2,10 +2,10 @@
 
 namespace LA87\AIPromptBuilder\Contracts;
 
-use stdClass;
-
 interface AIFunctionInterface
 {
+    public function getDescription(): string;
+    public function getParams(): array;
     public function getSchema(): array;
     public function getSchemaForToolChoice(): array;
 }

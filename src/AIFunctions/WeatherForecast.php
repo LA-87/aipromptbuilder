@@ -9,26 +9,35 @@ class WeatherForecast implements AIFunctionInterface
 {
     use AIFunctionTrait;
 
+    public function getDescription(): string
+    {
+        return 'Fetches weather data for a specified location and date.';
+    }
+
+    public function getParams(): array
+    {
+        return [
+            'location' => [
+                'type' => 'string',
+                'required' => true,
+                'description' => 'The city or location to get the weather forecast for.',
+            ],
+            'date' => [
+                'type' => ['string', 'null'],
+                'required' => false,
+                'description' => 'The date for the forecast in YYYY-MM-DD format.',
+            ],
+        ];
+    }
+
     /**
      * @aiFunction
-     * @description Fetches weather data for a specified location and date.
-     *
-     * @param string $location The city or location to get the weather forecast for.
-     * @param string $date The date for the forecast in YYYY-MM-DD format.
-     * @return string The weather forecast.
      */
     public function getWeatherForecast(string $location, string|null $date = null): string
     {
         return "Forecast for $location on $date";
     }
 
-    /**
-     * Some other function.
-     *
-     * @param string $location The city or location to get the weather forecast for.
-     * @param string $date The date for the forecast in YYYY-MM-DD format.
-     * @return string The weather forecast.
-     */
     public function someOtherFunction(string $location, string $date): string
     {
         return "Forecast for $location on $date";
