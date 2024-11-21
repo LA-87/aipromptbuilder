@@ -248,6 +248,10 @@ class AIPromptBuilderService
 
     public function getCost(): mixed
     {
-        return $this->evaluate(self::$costCallback);
+        return $this->evaluate(self::$costCallback,[
+            'self' => $this
+        ], [
+            self::class => $this
+        ]);
     }
 }
