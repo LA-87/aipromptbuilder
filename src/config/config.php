@@ -1,11 +1,12 @@
 <?php
 
+use App\Custom\AIPromptBuilderService;
+
 return [
     'api_key' => env('OPENAI_API_KEY'),
     'cache_ttl' => 60*60,
     'default_model' => \LA87\AIPromptBuilder\Enums\AIModelEnum::GPT4_O_mini,
     'default_temperature' => 0.8,
-    'class' => \LA87\AIPromptBuilder\Services\AIPromptBuilderService::class,
     'o1-preview' => [
         'cost-per-1k-tokens' => 0.015,
     ],

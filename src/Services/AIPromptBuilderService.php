@@ -2,6 +2,8 @@
 
 namespace LA87\AIPromptBuilder\Services;
 
+use Closure;
+use Filament\Support\Concerns\EvaluatesClosures;
 use OpenAI;
 use OpenAI\Client;
 use Illuminate\Pipeline\Pipeline;
@@ -20,6 +22,10 @@ use LA87\AIPromptBuilder\Services\Pipes\SetInitialParamsPipe;
 
 class AIPromptBuilderService
 {
+    use EvaluatesClosures;
+
+    protected static ?Closure $costCallback = null;
+
     protected Client $client;
     protected PromptConfigDTO $config;
     protected CreateResponse $response;
@@ -233,5 +239,15 @@ class AIPromptBuilderService
     public function hash(): string
     {
         return sha1(json_encode($this->getParameters()));
+    }
+
+    public static function registerCostCallback(Closure $callback): void
+    {
+        self::$costCallback = $callback;
+    }
+
+    public function getCost(): mixed
+    {
+        return $this->evaluate(self::$costCallback);
     }
 }
