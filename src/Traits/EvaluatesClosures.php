@@ -1,6 +1,6 @@
 <?php
 
-namespace Filament\Support\Concerns;
+namespace LA87\AIPromptBuilder\Traits;
 
 use Closure;
 use Illuminate\Contracts\Container\BindingResolutionException;

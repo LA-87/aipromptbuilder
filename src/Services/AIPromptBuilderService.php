@@ -3,7 +3,7 @@
 namespace LA87\AIPromptBuilder\Services;
 
 use Closure;
-use Filament\Support\Concerns\EvaluatesClosures;
+use LA87\AIPromptBuilder\Traits\EvaluatesClosures;
 use OpenAI;
 use OpenAI\Client;
 use Illuminate\Pipeline\Pipeline;
