@@ -97,6 +97,7 @@ enum AIModelEnum: string
             self::O1_mini => 128000,
             self::GPT4 => 8192,
             self::GPT4_O => 128000,
+            self::GPT4_O_mini => 128000,
             self::GPT4_TURBO => 4097,
             self::GPT4_0314 => 8192,
             self::GPT4_32k => 32768,
