@@ -77,7 +77,7 @@ enum AIModelEnum: string
             self::GPT4_O => $this->maxTokensReal(),
             self::GPT4_O_mini => $this->maxTokensReal(),
             self::GPT4_TURBO => $this->maxTokensReal(),
-            self::GPT4_0314 => $this->maxTokensReal(), round($this->maxTokensReal() * 0.5),
+            self::GPT4_0314 => $this->maxTokensReal(), // round($this->maxTokensReal() * 0.5),
             self::GPT4_32k => 32768,
             self::GPT4_0314_32k => 32768,
             self::GPT35_TURBO => $this->maxTokensReal(),
