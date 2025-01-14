@@ -44,7 +44,6 @@ enum AIModelEnum: string
             self::O1,
             self::O1_mini,
             self::GPT4_O,
-            self::GPT4_O_audio_preview,
             self::GPT4_O_mini,
         ];
 
@@ -63,6 +62,7 @@ enum AIModelEnum: string
             self::GPT4_O => 'More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration.',
             self::GPT4_O_mini => 'More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration.',
             self::WHISPER_1 => 'A small model that transcribes audio to text.',
+            self::GPT4_O_audio_preview => 'provides audio input and output',
             self::TSS_1 => 'A small model that transcribes audio to text.',
             self::TSS_1_hd => 'A small model that transcribes audio to text.',
             self::TEXT_EMBEDDING_3_large => 'A large model that embeds text.',
@@ -80,6 +80,7 @@ enum AIModelEnum: string
             self::GPT4_O => 'GPT-4',
             self::GPT4_O_mini => 'GPT-4 Mini',
             self::WHISPER_1 => 'Whisper 1',
+            self::GPT4_O_audio_preview => 'GPT-4 Audio Preview',
             self::TSS_1 => 'TSS 1',
             self::TSS_1_hd => 'TSS 1 HD',
             self::TEXT_EMBEDDING_3_large => 'Text Embedding 3 Large',
