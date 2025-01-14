@@ -77,8 +77,8 @@ enum AIModelEnum: string
         return match ($this) {
             self::O1 => 'O1',
             self::O1_mini => 'O1 Mini',
-            self::GPT4_O => 'GPT-4',
-            self::GPT4_O_mini => 'GPT-4 Mini',
+            self::GPT4_O => 'GPT-4o',
+            self::GPT4_O_mini => 'GPT-4o Mini',
             self::WHISPER_1 => 'Whisper 1',
             self::GPT4_O_audio_preview => 'GPT-4 Audio Preview',
             self::TSS_1 => 'TSS 1',
