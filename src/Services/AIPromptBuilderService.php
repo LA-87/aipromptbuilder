@@ -51,9 +51,19 @@ class AIPromptBuilderService
         $this->config = new PromptConfigDTO($defaultModel, $defaultTemperature, $cacheTTL);
     }
 
-    public function model(AIModelEnum $model): self
+    public function model(AIModelEnum|string $model): self
     {
+        if(is_string($model))
+        {
+            if(!in_array($model, AIModelEnum::toArray())) {
+                throw new \Exception('Model not found');
+            }
+
+            $model = AIModelEnum::from($model);
+        }
+
         $this->config->model = $model;
+
         return $this;
     }
 
