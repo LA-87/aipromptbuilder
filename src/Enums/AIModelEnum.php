@@ -29,11 +29,11 @@ enum AIModelEnum: string
             'description' => $model->description(),
             'tokens' => $model->maxTokens(),
         ], [
+            self::O1,
+            self::O1_mini,
             self::GPT4_O,
             self::GPT4_O_mini,
-            self::WHISPER_1,
-            self::TSS_1,
-            self::O1,
+            self::O3_mini,
         ]);
     }
 
@@ -63,6 +63,7 @@ enum AIModelEnum: string
             self::O1_mini => 'O1 Mini is a smaller version of our first model, optimized for chat. It is more capable than GPT-3.5, but still only 1/10th the cost.',
             self::GPT4_O => 'More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration.',
             self::GPT4_O_mini => 'More capable than any GPT-3.5 model, able to do more complex tasks, and optimized for chat. Will be updated with our latest model iteration.',
+            self::O3_mini => 'O3 Mini',
             self::WHISPER_1 => 'A small model that transcribes audio to text.',
             self::GPT4_O_audio_preview => 'provides audio input and output',
             self::TSS_1 => 'A small model that transcribes audio to text.',
@@ -80,6 +81,7 @@ enum AIModelEnum: string
             self::O1 => 'O1',
             self::O1_mini => 'O1 Mini',
             self::GPT4_O => 'GPT-4o',
+            self::O3_mini => 'O3 Mini',
             self::GPT4_O_mini => 'GPT-4o Mini',
             self::WHISPER_1 => 'Whisper 1',
             self::GPT4_O_audio_preview => 'GPT-4 Audio Preview',
@@ -96,6 +98,7 @@ enum AIModelEnum: string
     {
         return match ($this) {
             self::O1 => 200000,
+            self::O3_mini => 200000,
             self::O1_mini, self::GPT4_O, self::GPT4_O_mini => 128000,
             self::TEXT_EMBEDDING_ADA_002 => 2048,
             self::TEXT_EMBEDDING_3_large, self::TEXT_EMBEDDING_3_small => 8192,
