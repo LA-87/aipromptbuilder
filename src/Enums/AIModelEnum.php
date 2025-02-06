@@ -9,6 +9,7 @@ enum AIModelEnum: string
     case GPT4_O = 'gpt-4o';
     case GPT4_O_audio_preview = 'gpt-4o-audio-preview';
     case GPT4_O_mini = 'gpt-4o-mini';
+    case O3_mini = 'o3-mini';
     case WHISPER_1 = 'whisper-1';
     case TSS_1 = 'tss-1';
     case TSS_1_hd = 'tss-1-hd';
