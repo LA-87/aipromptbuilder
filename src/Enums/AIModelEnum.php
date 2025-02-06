@@ -46,6 +46,7 @@ enum AIModelEnum: string
             self::O1_mini,
             self::GPT4_O,
             self::GPT4_O_mini,
+            self::O3_mini,
         ];
 
         foreach ($cases as $case) {
