@@ -112,4 +112,12 @@ enum AIModelEnum: string
     {
         return config("ai-prompt-builder." . $this->value . ".cost-per-1k-tokens", 1);
     }
+
+    public function isReasoningModel(): bool
+    {
+        return match($this) {
+            self::O3_mini, self::O1, self::O1_mini => true,
+            default => false
+        };
+    }
 }
