@@ -120,4 +120,12 @@ enum AIModelEnum: string
             default => false
         };
     }
+
+    public function isEmbeddingModel(): bool
+    {
+        return match($this) {
+            self::TEXT_EMBEDDING_ADA_002, self::TEXT_EMBEDDING_3_large, self::TEXT_EMBEDDING_3_small => true,
+            default => false
+        };
+    }
 }

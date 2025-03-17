@@ -19,6 +19,7 @@ use LA87\AIPromptBuilder\Services\Pipes\ResolveRolePipe;
 use LA87\AIPromptBuilder\Services\Pipes\ResolveToolsPipe;
 use LA87\AIPromptBuilder\Services\Pipes\ResolvePromptPipe;
 use LA87\AIPromptBuilder\Services\Pipes\SetInitialParamsPipe;
+use OpenAI\Responses\Embeddings\CreateResponse as OpenAICreateResponse;
 
 class AIPromptBuilderService
 {
@@ -263,6 +264,18 @@ class AIPromptBuilderService
             'args' => $args,
         ], [
             self::class => $this,
+        ]);
+    }
+
+    public function embeddings(string $text): OpenAICreateResponse
+    {
+        if(!$this->config->model->isEmbeddingModel()) {
+            throw new \Exception('Model must be embedding model');
+        }
+
+        return $this->client->embeddings()->create([
+            'model' => $this->config->model->value,
+            'input' => $text,
         ]);
     }
 }
