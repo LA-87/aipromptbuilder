@@ -10,8 +10,8 @@ class ResolveRolePipe
     public function handle(PromptPayloadDTO $payload, Closure $next)
     {
         $role = fillPlaceholders($payload->config->role, $payload->config->meta);
-        $role = normalizeWhitespace($role);
-        $role = normalizeNewLines($role);
+        $role = $payload->config->normalizeRoleWhitespace ? normalizeWhitespace($role) : $role;
+        $role = $payload->config->normalizeRoleNewLines ? normalizeNewLines($role) : $role;
 
         $role = fillPlaceholders($role, [
             'br' => PHP_EOL

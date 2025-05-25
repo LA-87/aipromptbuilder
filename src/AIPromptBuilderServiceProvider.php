@@ -3,6 +3,7 @@
 namespace LA87\AIPromptBuilder;
 
 use Illuminate\Support\ServiceProvider;
+use LA87\AIPromptBuilder\Services\AiBatchService;
 use LA87\AIPromptBuilder\Services\AIPromptBuilderService;
 use LA87\AIPromptBuilder\Services\StringUtilsService;
 
@@ -18,6 +19,12 @@ class AIPromptBuilderServiceProvider extends ServiceProvider {
                 config('ai-prompt-builder.default_model'),
                 config('ai-prompt-builder.default_temperature'),
                 config('ai-prompt-builder.cache_ttl')
+            );
+        });
+
+        $this->app->bind(AiBatchService::class, function (): AiBatchService {
+            return new AiBatchService(
+                config('ai-prompt-builder.api_key'),
             );
         });
     }

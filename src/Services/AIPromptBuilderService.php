@@ -3,6 +3,7 @@
 namespace LA87\AIPromptBuilder\Services;
 
 use Closure;
+use LA87\AIPromptBuilder\DTOs\BatchRequestDTO;
 use LA87\AIPromptBuilder\Traits\EvaluatesClosures;
 use OpenAI;
 use OpenAI\Client;
@@ -31,6 +32,25 @@ class AIPromptBuilderService
     protected PromptConfigDTO $config;
     protected CreateResponse $response;
     private array $functionResults = [];
+    protected string $endpoint = '/v1/chat/completions';
+
+    public function chat(): self
+    {
+        $this->endpoint = '/v1/chat/completions'; return $this;
+    }
+    public function completion(): self
+    {
+        $this->endpoint = '/v1/completions'; return $this;
+    }
+    public function embeddings(): self
+    {
+        $this->endpoint = '/v1/embeddings'; return $this;
+    }
+    public function getEndpoint(): string
+    {
+        return $this->endpoint;
+    }
+
 
     public function __construct(
         string|null $apiKey,
@@ -78,6 +98,13 @@ class AIPromptBuilderService
         $this->config->prompt = $prompt;
         return $this;
     }
+
+    public function input(string $input): self
+    {
+        $this->config->prompt = $input; // or a separate property like $this->config->input
+        return $this;
+    }
+
 
     public function normalizePrompt(bool $normalize = true): self
     {
@@ -267,7 +294,7 @@ class AIPromptBuilderService
         ]);
     }
 
-    public function embeddings(string $text): OpenAICreateResponse
+    public function embed(string $text): OpenAICreateResponse
     {
         if(!$this->config->model->isEmbeddingModel()) {
             throw new \Exception('Model must be embedding model');
@@ -277,5 +304,30 @@ class AIPromptBuilderService
             'model' => $this->config->model->value,
             'input' => $text,
         ]);
+    }
+
+    public function toBatchRequestDTO(string $customId): BatchRequestDTO
+    {
+        switch ($this->endpoint) {
+            case '/v1/embeddings':
+                $body = [
+                    'model' => $this->config->model->value,
+                    'input' => $this->config->prompt, // or input property if you add input()
+                ];
+                break;
+            case '/v1/completions':
+                $body = $this->getParameters()->toArray();
+                break;
+            case '/v1/chat/completions':
+            default:
+                $body = $this->getParameters()->toArray();
+                break;
+        }
+        return new BatchRequestDTO(
+            customId: $customId,
+            method: 'POST',
+            url: $this->endpoint,
+            body: $body
+        );
     }
 }

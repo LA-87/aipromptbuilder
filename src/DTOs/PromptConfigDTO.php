@@ -19,6 +19,11 @@ class PromptConfigDTO
     public int|null $maxTokens = null;
     public int|null $cacheTTL = null;
     public bool $parallelToolCalls = true;
+    public bool $normalizeRoleNewLines = false;
+    public bool $normalizeRoleWhitespace = false;
+    public bool $normalizePromptNewLines = false;
+    public bool $normalizePromptWhitespace = false;
+
 
     public function __construct(AIModelEnum $model, float $temperature, int|null $cacheTTL)
     {

@@ -12,8 +12,8 @@ class ResolvePromptPipe
         $prompt = fillPlaceholders($payload->config->prompt, $payload->config->meta);
         $prompt = fillPlaceholders($prompt, $payload->config->getToolsPlaceholderReplacements());
 
-        $prompt = normalizeWhitespace($prompt);
-        $prompt = normalizeNewLines($prompt);
+        $prompt = $payload->config->normalizePromptWhitespace ? normalizeWhitespace($prompt) : $prompt;
+        $prompt = $payload->config->normalizePromptNewLines ? normalizeNewLines($prompt) : $prompt;
 
         $prompt = fillPlaceholders($prompt, [
             'br' => PHP_EOL

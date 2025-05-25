@@ -1,5 +1,6 @@
 <?php
 
+use LA87\AIPromptBuilder\Services\AiBatchService;
 use LA87\AIPromptBuilder\Services\AIPromptBuilderService;
 use LA87\AIPromptBuilder\Services\StringUtilsService;
 
@@ -13,6 +14,12 @@ if (!function_exists('strUtils')) {
 if (!function_exists('ai')) {
     function ai(): AIPromptBuilderService {
         return app(AIPromptBuilderService::class);
+    }
+}
+
+if (!function_exists('aiBatch')) {
+    function aiBatch(): AiBatchService {
+        return app(AiBatchService::class);
     }
 }
 
