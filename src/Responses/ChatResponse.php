@@ -22,13 +22,14 @@ class ChatResponse
     public AIModelEnum $model;
 
     public function __construct(
-        array|null $toolsCalls,
-        array|null $tools,
+        array|null  $toolsCalls,
+        array|null  $tools,
         string|null $text,
-        int|null $prompt_tokens,
-        int|null $completion_tokens,
+        int|null    $prompt_tokens,
+        int|null    $completion_tokens,
         AIModelEnum $model,
-    ) {
+    )
+    {
         $this->toolsCalls = $toolsCalls;
         $this->prompt_tokens = $prompt_tokens;
         $this->completion_tokens = $completion_tokens;
@@ -64,7 +65,7 @@ class ChatResponse
             );
         }
 
-        if($response->choices[0]->finishReason === 'stop') {
+        if ($response->choices[0]->finishReason === 'stop') {
             return new self(
                 null,
                 $tools,
@@ -84,7 +85,7 @@ class ChatResponse
     public function executeToolCalls(): self
     {
         foreach ($this->toolsCalls as $toolsCall) {
-            if($toolsCall->type === 'function') {
+            if ($toolsCall->type === 'function') {
                 $methodName = $toolsCall->function->name;
                 $arguments = json_decode($toolsCall->function->arguments, true);
 
@@ -111,22 +112,34 @@ class ChatResponse
 
     public function getToolCallResults(): array
     {
-        return $this->toolsCallResults;
+        return $this->toolsCallResults ?? [];
     }
 
     public function getToolCallResult(string $methodName): array|null
     {
         $availableMethods = array_keys($this->toolsByFunction);
 
-        if(in_array($methodName, $this->functionAliases)) {
+        if (in_array($methodName, $this->functionAliases)) {
             $methodName = $this->functionAliases[$methodName];
         }
 
-        if(in_array($methodName, $availableMethods)) {
+        if (in_array($methodName, $availableMethods)) {
             return $this->toolsCallResults[$methodName];
         }
 
         return null;
+    }
+
+    public function getToolCallsForMessages(): array
+    {
+        return array_map(fn($toolCall) => [
+            'id' => $toolCall->id,
+            'type' => $toolCall->type,
+            'function' => [
+                'name' => $toolCall->function->name,
+                'arguments' => $toolCall->function->arguments,
+            ],
+        ], $this->toolsCalls ?? []);
     }
 
     public function dd()
