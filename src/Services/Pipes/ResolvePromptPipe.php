@@ -19,7 +19,10 @@ class ResolvePromptPipe
             'br' => PHP_EOL
         ]);
 
-        $payload->parameters->messages[] = ['role' => 'user', 'content' => $prompt];
+        array_push($payload->parameters->messages, ...$payload->config->history);
+        if (!empty($prompt)) {
+            $payload->parameters->messages[] = ['role' => 'user', 'content' => $prompt];
+        }
 
         return $next($payload);
     }
