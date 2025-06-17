@@ -39,4 +39,9 @@ class ChatParametersDTO
 
         return $params;
     }
+
+    public function dd(): void
+    {
+        dd($this->toArray());
+    }
 }

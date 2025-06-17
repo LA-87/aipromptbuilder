@@ -14,6 +14,7 @@ class PromptConfigDTO
     public array $tools = [];
     public string|null $tool_choice = null;
     public array $meta = [];
+    /** @var array<ChatMessageDTO|array> */
     public array $history = [];
     public float $temperature;
     public int|null $maxTokens = null;

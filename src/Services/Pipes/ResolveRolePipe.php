@@ -2,22 +2,27 @@
 namespace LA87\AIPromptBuilder\Services\Pipes;
 
 use Closure;
-use LA87\AIPromptBuilder\DTOs\PromptConfigDTO;
 use LA87\AIPromptBuilder\DTOs\PromptPayloadDTO;
+use LA87\AIPromptBuilder\Enums\ChatRoleEnum;
 
 class ResolveRolePipe
 {
     public function handle(PromptPayloadDTO $payload, Closure $next)
     {
-        $role = fillPlaceholders($payload->config->role, $payload->config->meta);
-        $role = $payload->config->normalizeRoleWhitespace ? normalizeWhitespace($role) : $role;
-        $role = $payload->config->normalizeRoleNewLines ? normalizeNewLines($role) : $role;
+        $roleContent = fillPlaceholders($payload->config->role, $payload->config->meta);
+        $roleContent = $payload->config->normalizeRoleWhitespace ? normalizeWhitespace($roleContent) : $roleContent;
+        $roleContent = $payload->config->normalizeRoleNewLines ? normalizeNewLines($roleContent) : $roleContent;
 
-        $role = fillPlaceholders($role, [
+        $roleContent = fillPlaceholders($roleContent, [
             'br' => PHP_EOL
         ]);
 
-        $payload->parameters->messages[] = ['role' => 'system', 'content' => $role];
+        if (!empty(trim($roleContent))) {
+            array_unshift($payload->parameters->messages, [
+                'role' => ChatRoleEnum::System->value,
+                'content' => $roleContent
+            ]);
+        }
 
         return $next($payload);
     }

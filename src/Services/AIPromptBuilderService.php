@@ -4,6 +4,7 @@ namespace LA87\AIPromptBuilder\Services;
 
 use Closure;
 use LA87\AIPromptBuilder\DTOs\BatchRequestDTO;
+use LA87\AIPromptBuilder\Services\Pipes\SetChatHistoryPipe;
 use LA87\AIPromptBuilder\Traits\EvaluatesClosures;
 use OpenAI;
 use OpenAI\Client;
@@ -192,6 +193,7 @@ class AIPromptBuilderService
             )
             ->through([
                 SetInitialParamsPipe::class,
+                SetChatHistoryPipe::class,
                 ResolveRolePipe::class,
                 ResolvePromptPipe::class,
                 ResolveToolsPipe::class,
