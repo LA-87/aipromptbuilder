@@ -102,7 +102,8 @@ class ChatResponse
 
                     $result = $reflectionMethod->invokeArgs($tool, $parameters);
 
-                    $this->toolsCallResults[$methodName] = $result;
+                    $this->toolsCallResults[$methodName]['id'] = $toolsCall->id;
+                    $this->toolsCallResults[$methodName]['result'] = $result;
                 }
             }
         }
